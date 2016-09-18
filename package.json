@@ -1,0 +1,16 @@
+{
+  "name": "nicesync",
+  "version": "1.0.0",
+  "description": "A Readability.js server implemented in node",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.14.0",
+    "readability": "github:mozilla/readability"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bernhard König",
+  "license": "MIT"
+}
