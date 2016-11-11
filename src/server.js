@@ -2,6 +2,7 @@ var express = require("express");
 var url = require("url");
 var querystring = require("querystring");
 var readability = require("node-readability");
+var preprocessor = require("./preprocessor.js");
 
 var app = express();
 
@@ -27,20 +28,36 @@ app.get("/document", function(request, response) {
     }
 
     // Try download the page from the targetUrl
-    readability(targetUrl, function(error, article, meta) {
+    readability(
+        targetUrl,
+        {
+            preprocess: function (content, response, contentType, callback) {
+                contentPromise = preprocessor(content);
+                contentPromise.then(
+                    function(processedContent) {
+                        callback(null, processedContent);
+                    })
+                .catch(
+                    function(reason) {
+                        callback(null, content);
+                    } 
+                )
+            }
+        },
+        function(error, article, meta) {
+            if (error) {
+                response.sendStatus(500);
+                console.error("Error on processing URI " + targetUrlString);
+                console.error("    " + error.message);
+                return;
+            } 
 
-        if (error) {
-            response.sendStatus(500);
-            console.error("Error on processing URI " + targetUrlString);
-            console.error("    " + error.message);
-            return;
+            response.send(article.content);
+            article.close();
+
+            console.timeEnd("Request finished for " + targetUrlString);
         }
-
-        response.send(article.content);
-        article.close();
-
-        console.timeEnd("Request finished for " + targetUrlString);
-    });
+    );
 });
 
 exports.serve = function(port) {
