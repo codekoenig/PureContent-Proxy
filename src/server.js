@@ -12,7 +12,7 @@ app.get("/", function(request, response) {
 
 app.get("/document", function(request, response) {
 
-    var targetUrlString = querystring.unescape(request.query["targetUri"]);
+    var targetUrlString = querystring.unescape(request.query["uri"] || request.query["targetUri"]);
 
     console.log("Request received for: " + targetUrlString);
     console.time("Request finished for " + targetUrlString);

@@ -4,13 +4,19 @@
   "description": "A Readability.js server implemented in node",
   "main": "app.js",
   "dependencies": {
+    "cheerio": "^0.22.0",
     "express": "^4.14.0",
     "jsdom": "^9.8.3",
-    "node-readability": "^2.2.0"
+    "node-readability": "^2.2.0",
+    "valid-url": "^1.0.9"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Bernhard König",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/codekoenig/PureContent-Proxy.git"
+  }
 }
