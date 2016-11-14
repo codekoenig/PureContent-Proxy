@@ -20,7 +20,7 @@ node run.js
 To startup the proxy with a custom port, define it as a environment variable named PORT.
 Most hosting environments that support Node.js, like Azure AppService, will do this automatically for you.
 
-### Get the proxy's "pure content" rewirte of a web page 
+### Get the proxy's "pure content" rewirte of a web page
 
 Sample request to get the rewirte of the URI `https://www.engadget.com/2016/11/11/nintendos-mini-nes-is-out-today/`:
 
@@ -46,4 +46,7 @@ issues that prevent documents from being displayed correctly, like lazy loading 
   * `<footer>`
   * `<aside>`
   * `<nav>`
+* Flattens the HTML hierarchy by merging nested `<DIV>`s into a single `<DIV>`
+* In case of multiple `<DIV>` siblings below another `<DIV>`, merges them into a single `<DIV>`
+* Removes nodes that hidden indicated by their style classes
 * Detects lazy loading for images in a HTML document and replaces placeholdes with the real image URI
