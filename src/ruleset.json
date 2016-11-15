@@ -1,6 +1,6 @@
 {
     "ruleset": {
-        "version": "161115c",
+        "version": "161115d",
         "published": "2016-11-15",
         "title": "Default Ruleset",
         "rules": {
@@ -12,11 +12,7 @@
                     { "value": "footer" },
                     { "value": "aside" },
                     { "value": "nav" },
-                    { "value": "iframe" }
-                ]
-            },
-            "removeTagsByClass": { 
-                "classes": [
+                    { "value": "iframe" },
                     { "value": ".hidden, .hide" }
                 ]
             },

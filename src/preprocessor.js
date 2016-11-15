@@ -29,10 +29,6 @@ function preprocess(content, ruleManager, contentUri) {
             removeTagBySelector($, rules.removeTags.tags, ruleManager, contentUri);
         }
 
-        if (rules.removeTagsByClass && ruleManager.doesRuleApplyFor(contentUri, rules.removeTagsByClass)) {
-            removeTagBySelector($, rules.removeTagsByClass.classes, ruleManager, contentUri);
-        }
-
         if (rules.removeEmptyTags && ruleManager.doesRuleApplyFor(contentUri, rules.removeEmptyTags)) {
             removeEmptyTags($);
         }
