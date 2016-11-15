@@ -1,3 +1,5 @@
+"use strict";
+
 var cheerio = require("cheerio");
 var validUrl = require("valid-url");
 var fs = require("fs");
@@ -5,51 +7,77 @@ var fs = require("fs");
 /**
  * Preprocess HTML content and remove unnecessary content
  * @param {String} The HTML content to preprocess
+ * @param {RuleManager} The RuleManager that should be used to decide which rules should be executed
+ * @param {String} String representation of the URI the content was retrieved from
  * @return {Promise} Promise that contains the preprocessed HTML content when resolved
  **/
-function preprocess(content) {
-    
-    return new Promise((resolve) => {
-        $ = cheerio.load(content);
+function preprocess(content, ruleManager, contentUri) {
+    var $;
+    var rules = ruleManager.ruleset.rules;
 
-        removeUnnecessaryTags($);
-        removeHiddenTags($);
-        removeEmptyDivs($);
-        unwrapDivs($);
+    return new Promise((resolve) => {
+        try {
+            $ = cheerio.load(content);
+        } catch (error) {
+            console.log(error);
+            resolve(content);
+        }
+
         // fs.writeFileSync("before.html", $.html());
-        mergeSiblings($);
+        
+        if (rules.removeTags && ruleManager.doesRuleApplyFor(contentUri, rules.removeTags)) {
+            removeTagBySelector($, rules.removeTags.tags, ruleManager, contentUri);
+        }
+
+        if (rules.removeTagsByClass && ruleManager.doesRuleApplyFor(contentUri, rules.removeTagsByClass)) {
+            removeTagBySelector($, rules.removeTagsByClass.classes, ruleManager, contentUri);
+        }
+
+        if (rules.removeEmptyTags && ruleManager.doesRuleApplyFor(contentUri, rules.removeEmptyTags)) {
+            removeEmptyTags($);
+        }
+
+        if (rules.unwrapDivs && ruleManager.doesRuleApplyFor(contentUri, rules.unwrapDivs)) {
+            unwrapDivs($);
+        }
+
+        if (rules.mergeSiblings && ruleManager.doesRuleApplyFor(contentUri, rules.mergeSiblings)) {
+            mergeSiblings($, rules.mergeSiblings.tags, ruleManager, contentUri);
+        }
+
+        if (rules.fixImageLazyLoading && ruleManager.doesRuleApplyFor(contentUri, rules.fixImageLazyLoading)) {
+            fixImageLazyLoading($);
+        }
+        
         // fs.writeFileSync("after.html", $.html());
-        fixImageLazyLoading($);
 
         resolve($.html());
     }); 
 }
 
-function removeUnnecessaryTags($) {
+function removeTagBySelector($, selectors, ruleManager, contentUri ) {
     var start = new Date();
 
-    $("script").remove();
-    $("noscript").remove();
-    $("header").remove();
-    $("footer").remove();
-    $("aside").remove();
-    $("nav").remove();
+    for (var i = 0; i < selectors.length; i++) {
+        var selector = selectors[i];
 
-    console.log("removeUnneccessaryTags: " + getDurationString(start));
+        if (ruleManager.doesRuleApplyFor(contentUri, selector)) {
+            $(selector.value).remove();
+        }
+    }
+
+    console.log("removeTagBySelector: " + getDurationString(start));
 }
 
-function removeHiddenTags($) {
-    var start = new Date();
-    $(".hide, .hidden").remove();
-    console.log("removeHiddenTags: " + getDurationString(start));
-}
-
-function removeEmptyDivs($) {
+/**
+ * Removes DIV tags that contain no children or, if they contain plain text, wraps them into a paragraph
+ * @param Cheerio document to process
+ **/
+function removeEmptyTags($) {
     var start = new Date();
 
-    $("div").each(function() {
+    $("div, span").each(function() {
         var element = $(this);
-        var parentElement = $(this).parent();
 
         if (element.children().length == 0) {
             if (element.text().trim().length > 0) {
@@ -64,6 +92,10 @@ function removeEmptyDivs($) {
     console.log("removeEmptyDivs: " + getDurationString(start));
 }
 
+/**
+ * Replaces DIV tags with their child if they contain only another, single DIV
+ * @param Cheerio document to process
+ **/
 function unwrapDivs($) {
     var start = new Date();
 
@@ -76,19 +108,29 @@ function unwrapDivs($) {
     console.log("unwrapDivs: " + getDurationString(start));
 }
 
-function mergeSiblings($) {
+/**
+ * Merges siblings of the same kind into a single tag. This might be too agressive for many sites and should be only used opt-in.
+ * @param Cheerio document to process
+ **/
+function mergeSiblings($, tags, ruleManager, contentUri) {
     var start = new Date();
 
-    $("div").each(function() {
-        var element = $(this);
+    for (var i = 0; i < tags.length; i++) {
+        var tag = tags[i];
 
-        if (element.children().length === element.children("div").length) {
-            element.children().each(function() {
-                element.append($(this).children());
-                $(this).remove();
+        if (ruleManager.doesRuleApplyFor(contentUri, tag)) {
+            $(tag.value).each(function() {
+                var element = $(this);
+
+                if (element.children().length === element.children(tag.value).length) {
+                    element.children().each(function() {
+                        element.append($(this).children());
+                        $(this).remove();
+                    });
+                }
             });
         }
-    });
+    }
 
     console.log("mergeSiblings: " + getDurationString(start));
 }

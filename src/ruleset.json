@@ -1,0 +1,34 @@
+{
+    "ruleset": {
+        "version": "161115c",
+        "published": "2016-11-15",
+        "title": "Default Ruleset",
+        "rules": {
+            "removeTags": {
+                "tags": [
+                    { "value": "script" },
+                    { "value": "noscript" },
+                    { "value": "header" },
+                    { "value": "footer" },
+                    { "value": "aside" },
+                    { "value": "nav" },
+                    { "value": "iframe" }
+                ]
+            },
+            "removeTagsByClass": { 
+                "classes": [
+                    { "value": ".hidden, .hide" }
+                ]
+            },
+            "removeEmptyTags": {},
+            "unwrapDivs": {},
+            "mergeSiblings": {
+                    "tags": [
+                    { "value": "div", "include": [ "^https?:\\/\\/(www\\.)?engadget\\..*$" ] },
+                    { "value": "article" }
+                ]
+            },
+            "fixImageLazyLoading": {}
+        }
+    }
+}

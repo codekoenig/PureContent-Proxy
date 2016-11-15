@@ -1,13 +1,17 @@
+"use strict";
+
 var express = require("express");
 var url = require("url");
 var querystring = require("querystring");
 var readability = require("node-readability");
 var preprocessor = require("./preprocessor.js");
+var ruleManager = require("./rulemanager.js");
 
 var app = express();
+var currentRuleManager;
 
 app.get("/", function(request, response) {
-    response.send("NiceSync - Readability server for NewsSync");
+    response.send("NewsSync PureContent Proxy (Ruleset " + currentRuleManager.ruleset.version +")");
 });
 
 app.get("/document", function(request, response) {
@@ -32,7 +36,7 @@ app.get("/document", function(request, response) {
         targetUrl,
         {
             preprocess: function (content, response, contentType, callback) {
-                contentPromise = preprocessor(content);
+                var contentPromise = preprocessor(content, currentRuleManager, targetUrl.href);
                 contentPromise.then(
                     function(processedContent) {
                         callback(null, processedContent);
@@ -60,7 +64,11 @@ app.get("/document", function(request, response) {
     );
 });
 
-exports.serve = function(port) {
+exports.serve = function(port, rulesetPath) {
+    console.log("Initializing RuleManager ...");
+    currentRuleManager = new ruleManager(rulesetPath);
+    console.log("Ruleset " + currentRuleManager.ruleset.version + " loaded");
+
     app.listen(port, function() {
         console.log("Server running at port " + port);
     });
