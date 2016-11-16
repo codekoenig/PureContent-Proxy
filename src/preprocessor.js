@@ -150,7 +150,7 @@ function fixImageLazyLoading($) {
             // Check if the attribute value is an URI
             if (validUrl.isUri(imgElement.attribs[imgAttribKey]))
             {
-                cheerioImgElement = $(imgElement);
+                var cheerioImgElement = $(imgElement);
                 console.log("Found lazy loaded img attribute " + imgAttribKey + ": " + imgElement.attribs[imgAttribKey]);
 
                 // Replace the current src attribute with this one as we suspect it to be the img URI for lazy laoding
