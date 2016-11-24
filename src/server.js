@@ -46,6 +46,9 @@ app.get("/document", function(request, response) {
                         callback(null, content);
                     } 
                 )
+            },
+            headers: {
+                'User-Agent': 'PureContentProxy/1.0 (+http://www.newssync.net)'
             }
         },
         function(error, article, meta) {
